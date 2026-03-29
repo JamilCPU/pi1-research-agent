@@ -21,31 +21,36 @@ If unreachable, write the digest to /shared/ai-digest/ as a fallback and exit.
 
 ---
 
-## Step 0 — Load Blocked Domains
+## Step 0 — Load Memory & Blocked Domains
 
+Run all of these reads before doing anything else.
+
+**Blocked domains:**
   web_fetch("http://192.0.2.99:8741/blocked")
+Store returned domains. Skip any URL whose domain is in that list. If unreachable, continue.
 
-Store returned domains. Skip any URL whose domain is in that list.
-If unreachable, continue without it.
+**World model** — read this first. It tells you what this Pi already knows:
+  read: /shared/memory/world-model.md
+Use this to understand the current AI landscape and avoid re-reporting ongoing stories as new.
 
----
+**Story ledger** — the authoritative dedup source:
+  exec: cat /shared/memory/story-ledger.jsonl
+Extract all URLs and headlines into SEEN_URLS and SEEN_HEADLINES sets.
+This covers every story ever published by any agent on this Pi.
 
-## Step 0.5 — Load Previous Stories (Deduplication)
+**Source reputation** — consult before fetching:
+  read: /shared/memory/source-reputation.json
+Skip domains with score < 3 without attempting. For score 3-5, try once, don't retry.
 
-Avoid republishing stories already covered in recent digests.
+**Your own notes** — read your learned preferences:
+  read: /shared/memory/agent-notes/ai-digest.md
+Apply any learned search strategies or source preferences noted in previous runs.
 
-  exec: ls -t /shared/ai-digest/*.json 2>/dev/null | head -7
-
-For each file returned (up to 7 most recent), read it and extract:
-- All item URLs → store in a SEEN_URLS set
-- All item headlines → store in a SEEN_HEADLINES list
-
-When evaluating a story candidate later:
-1. Skip if its URL is in SEEN_URLS (exact match)
-2. Skip if its headline is very similar to a SEEN_HEADLINE (same company + same event)
-3. A story may be included if it is a meaningful UPDATE to a previously covered story
-   (e.g., new benchmark results for a model covered last week, follow-up funding round)
-   — in that case, note "UPDATE:" at the start of the headline.
+**Deduplication rules:**
+1. Skip if URL is in SEEN_URLS (exact match)
+2. Skip if headline refers to same company + same event as a SEEN_HEADLINE
+3. Include if it is a meaningful UPDATE to a prior story — prefix headline with "UPDATE:"
+4. World model "Ongoing Stories" entries are background context — only cover NEW developments
 
 ---
 
@@ -191,6 +196,39 @@ and update the index automatically.
 
 ---
 
-## Step 6 — Done
+## Step 6 — Update Memory
 
-Output: "AI Digest <date> complete — <N> items (<N> new, <N> skipped as duplicates). Page creation handed off to page-creator agent."
+**Append new stories to the story ledger:**
+For each item in today's digest, append one JSON line to /shared/memory/story-ledger.jsonl:
+  exec: (append each item as a single line)
+  {"digest_date":"<YYYY-MM-DD>","url":"<url>","headline":"<headline>","category":"<category>","agent":"ai-digest"}
+
+**Update world model** with any new persistent facts:
+  read: /shared/memory/world-model.md
+  write: /shared/memory/world-model.md (updated)
+Update if today's digest contains:
+- A newly released model (add to Active Model Landscape table)
+- A story that was novel today but will be background context tomorrow (add to Ongoing Stories)
+- A newly discovered coverage gap
+
+**Append a reflection to your agent notes:**
+  read: /shared/memory/agent-notes/ai-digest.md
+  write: /shared/memory/agent-notes/ai-digest.md (with new block appended)
+Add a block like:
+## <YYYY-MM-DD>
+- <N> stories covered, <N> skipped as duplicates
+- What search queries worked well today
+- Any sources that were unexpectedly blocked or accessible
+- Any learned preference worth recording for future runs
+- Any world model updates made
+
+**Update source reputation** for any domains encountered today:
+  read: /shared/memory/source-reputation.json
+  write: /shared/memory/source-reputation.json (updated)
+Adjust scores up/down based on actual access results. Add new domains encountered.
+
+---
+
+## Step 7 — Done
+
+Output: "AI Digest <date> complete — <N> items (<N> new, <N> skipped as duplicates). Memory updated. Page creation handed off to page-creator agent."
