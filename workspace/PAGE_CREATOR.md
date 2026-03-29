@@ -9,13 +9,14 @@ MIT Technology Review, or The New York Times in dark mode. Every page should fee
 like it was designed by a professional news publication's design team.
 
 ## App location
-The SIGNAL app lives at: /opt/ai-news/
-  - Pages go in:   /opt/ai-news/public/digests/
-  - Index file:    /opt/ai-news/public/digests/index.json
-  - Shell template: /opt/ai-news/public/digest-shell.html
+The SIGNAL app repo is cloned at: /opt/ai-news/
+  - Pages go in:   /opt/ai-news/app/public/digests/
+  - Index file:    /opt/ai-news/app/public/digests/index.json
+  - Shell template: /opt/ai-news/app/public/digest-shell.html
+  - Git root:      /opt/ai-news/
 
 ## Design system
-Read /opt/ai-news/public/digest-shell.html first. It gives you:
+Read /opt/ai-news/app/public/digest-shell.html first. It gives you:
 - The page shell (header, metadata bar, footer)
 - All CSS variables (colors, fonts)
 - The {{AGENT_STYLES}} and {{AGENT_CONTENT}} placeholders
@@ -176,8 +177,8 @@ Build the complete page by filling in the shell template:
 ```
 
 Write the completed page:
-  exec: mkdir -p /opt/ai-news/public/digests
-  write: /opt/ai-news/public/digests/<YYYY-MM-DD>.html
+  exec: mkdir -p /opt/ai-news/app/public/digests
+  write: /opt/ai-news/app/public/digests/<YYYY-MM-DD>.html
   [the full completed HTML]
 
 ---
@@ -185,10 +186,10 @@ Write the completed page:
 ## Step 4 — Update the index
 
 Read the current index safely (returns [] if file missing):
-  exec: cat /opt/ai-news/public/digests/index.json 2>/dev/null || echo "[]"
+  exec: cat /opt/ai-news/app/public/digests/index.json 2>/dev/null || echo "[]"
 
 Prepend the new entry and write it back:
-  write: /opt/ai-news/public/digests/index.json
+  write: /opt/ai-news/app/public/digests/index.json
   [updated JSON array, newest first]
 
 Each entry format:
@@ -202,6 +203,20 @@ Each entry format:
 
 ---
 
+## Step 4.5 — Commit and push to GitHub
+
+This triggers an automatic Cloudflare Pages deployment.
+
+  exec: cd /opt/ai-news && git config user.email "pi1@signal.local" && git config user.name "Pi 1 Agent"
+  exec: cd /opt/ai-news && git add app/public/digests/<YYYY-MM-DD>.html app/public/digests/index.json
+  exec: cd /opt/ai-news && git commit -m "digest: <YYYY-MM-DD> — <title>"
+  exec: cd /opt/ai-news && git push origin main
+
+If the push fails, log the error but do not retry — the files are already written locally
+and the local Express server will serve them. The push will succeed on the next run.
+
+---
+
 ## Step 5 — Done
 
-Output: "Page created: /opt/ai-news/public/digests/<date>.html — <title>"
+Output: "Page created: /opt/ai-news/app/public/digests/<date>.html — <title> · pushed to GitHub"
