@@ -188,9 +188,9 @@ Write the completed page:
 Read the current index safely (returns [] if file missing):
   exec: cat /opt/ai-news/app/public/digests/index.json 2>/dev/null || echo "[]"
 
-Prepend the new entry and write it back:
+Prepend the new entry, then deduplicate by date (keep first occurrence), and write back:
   write: /opt/ai-news/app/public/digests/index.json
-  [updated JSON array, newest first]
+  [updated JSON array, newest first, no duplicate dates]
 
 Each entry format:
   {
