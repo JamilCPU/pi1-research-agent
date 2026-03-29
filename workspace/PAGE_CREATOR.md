@@ -142,7 +142,11 @@ Build the complete page by filling in the shell template:
 </div>
 
 <!-- Lead story (first/biggest item) -->
-<section class="lead-story">
+<!-- REQUIRED: data-story-id, data-category, data-source on every article element -->
+<section class="lead-story"
+  data-story-id="[YYYY-MM-DD]-[headline-slugified]"
+  data-category="[CATEGORY]"
+  data-source="[source name]">
   <div class="category-tag category-[slug]">[CATEGORY]</div>
   <h1 class="lead-headline">[headline]</h1>
   <p class="lead-lede">[summary]</p>
@@ -156,14 +160,17 @@ Build the complete page by filling in the shell template:
   <p>"[striking sentence from any summary]"</p>
 </blockquote>
 
-<!-- One section per category (skip lead story's category if only 1 item there) -->
+<!-- One section per category -->
 <section class="digest-section">
   <header class="section-header">
     <span class="section-label">[CATEGORY NAME]</span>
   </header>
   <div class="stories-grid stories-[2col or 1col]">
-    <!-- story items -->
-    <article class="story-item">
+    <!-- REQUIRED: data-story-id, data-category, data-source on every article -->
+    <article class="story-item"
+      data-story-id="[YYYY-MM-DD]-[headline-slugified]"
+      data-category="[CATEGORY]"
+      data-source="[source name]">
       <div class="story-category category-[slug]">[CATEGORY]</div>
       <h2 class="story-headline">[headline]</h2>
       <p class="story-lede">[summary]</p>
@@ -171,10 +178,16 @@ Build the complete page by filling in the shell template:
         <span class="story-source-name">Via [source]</span>
         <a href="[url]" class="story-link" target="_blank" rel="noopener">[LINK ↗]</a>
       </footer>
+      <!-- Like button is injected here automatically by digest-shell.html JS -->
     </article>
   </div>
 </section>
 ```
+
+**data-story-id format:** `[YYYY-MM-DD]-[headline-lowercased-hyphenated-max-60-chars]`
+Example: `data-story-id="2026-03-29-gpt-5-4-released-three-variants"`
+Every article/section/story element that represents one news item MUST have all three data attributes.
+The like button is automatically injected by the shell — you do not need to add it.
 
 Write the completed page:
   exec: mkdir -p /opt/ai-news/app/public/digests

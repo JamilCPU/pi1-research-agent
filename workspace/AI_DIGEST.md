@@ -42,6 +42,14 @@ This covers every story ever published by any agent on this Pi.
   read: /shared/memory/source-reputation.json
 Skip domains with score < 3 without attempting. For score 3-5, try once, don't retry.
 
+**User engagement data** — read what readers actually care about:
+  web_fetch("https://ai-news-dgk.pages.dev/api/likes/summary")
+If reachable, parse the response:
+- Boost effort on `top_categories` — spend more searches there, aim for more items
+- Deprioritize `low_engagement` categories — still cover them but fewer items is fine
+- Favour `top_sources` when multiple sources cover the same story
+- If total_likes is 0 (no data yet), ignore this and proceed with default balance
+
 **Your own notes** — read your learned preferences:
   read: /shared/memory/agent-notes/ai-digest.md
 Apply any learned search strategies or source preferences noted in previous runs.
