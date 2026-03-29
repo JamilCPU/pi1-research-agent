@@ -51,39 +51,52 @@ When evaluating a story candidate later:
 
 ## Step 1 — Gather Today's AI News
 
-Get today's date:
+Get today's date and compute the target window:
   exec: date +%Y-%m-%d
+  exec: date -d "yesterday" +%Y-%m-%d
+  exec: date -d "2 days ago" +%Y-%m-%d
 
-Run ALL of the following searches. For each, fetch the top 3 results and
-extract: headline, 2-3 sentence summary, source URL, publication date.
-Only include items published in the last 24-48 hours — skip anything older.
+Store these as TODAY, YESTERDAY, and TWO_DAYS_AGO.
+
+**Date scoping rules — strictly enforced:**
+- Target articles published on YESTERDAY or TWO_DAYS_AGO
+- If running at 7am on March 30, you want news from March 28–29
+- When fetching search results, check each article's publish date before reading it
+- REJECT any article published before TWO_DAYS_AGO — it is stale
+- REJECT any article with no visible publish date unless the content clearly references very recent events
+- Include the publish date in your notes for each candidate article
+
+Run ALL of the following searches. Use the actual date strings in your queries for precision.
+For each search, fetch the top 3 results and extract: headline, publish date, source URL.
 
 **Model releases & updates:**
-- `new AI model released today 2026`
-- `LLM benchmark results announced 2026`
-- `AI model update announcement openai anthropic google mistral meta 2026`
+- `new AI model released ${YESTERDAY} OR ${TWO_DAYS_AGO}`
+- `LLM benchmark results ${YESTERDAY}`
+- `openai anthropic google mistral meta AI announcement ${YESTERDAY}`
 
 **Research breakthroughs:**
-- `AI research paper breakthrough arxiv 2026`
-- `machine learning new technique published 2026`
-- `AI reasoning agents autonomy research 2026`
+- `AI research paper arxiv ${YESTERDAY} OR ${TWO_DAYS_AGO}`
+- `machine learning breakthrough published ${YESTERDAY}`
+- `AI reasoning agents research ${YESTERDAY}`
 
 **Industry, business & money:**
-- `AI company funding round series announcement 2026`
-- `artificial intelligence acquisition merger deal 2026`
-- `enterprise AI adoption deployment announcement 2026`
-- `AI startup valuation investment 2026`
-- `artificial intelligence regulation policy news 2026`
-- `AI infrastructure compute data center investment 2026`
+- `AI company funding round announced ${YESTERDAY}`
+- `artificial intelligence acquisition merger ${YESTERDAY} OR ${TWO_DAYS_AGO}`
+- `enterprise AI deployment partnership ${YESTERDAY}`
+- `AI startup investment valuation ${YESTERDAY}`
+- `artificial intelligence regulation policy ${YESTERDAY} OR ${TWO_DAYS_AGO}`
+- `AI infrastructure compute data center ${YESTERDAY}`
 
 **Open source & developer tools:**
-- `open source AI model released github 2026`
-- `AI developer tool framework SDK launch 2026`
-- `machine learning library update release 2026`
-- `AI agent framework tool 2026`
+- `open source AI model released github ${YESTERDAY} OR ${TWO_DAYS_AGO}`
+- `AI developer tool framework released ${YESTERDAY}`
+- `machine learning library update ${YESTERDAY}`
+- `AI agent framework ${YESTERDAY}`
 
-For each promising result URL (that is not in BLOCKED or SEEN_URLS), use web_fetch to read
-the full article and extract the key facts. Do not summarize from headlines alone.
+For each candidate URL (not in BLOCKED, not in SEEN_URLS, publish date within window):
+use web_fetch to read the full article. Verify the publish date in the article body.
+If the article is older than TWO_DAYS_AGO, discard it.
+Do not summarize from headlines alone.
 
 Apply the Domain Verification Procedure for any fetch failures:
 1. Fetch domain root directly
