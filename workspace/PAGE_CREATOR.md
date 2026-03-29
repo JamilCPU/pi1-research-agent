@@ -201,9 +201,11 @@ Write the completed page:
 Read the current index safely (returns [] if file missing):
   exec: cat /opt/ai-news/app/public/digests/index.json 2>/dev/null || echo "[]"
 
-Prepend the new entry, then deduplicate by date (keep first occurrence), and write back:
+Prepend the new entry, deduplicate by date (keep first occurrence), sort by date descending, and write back:
   write: /opt/ai-news/app/public/digests/index.json
-  [updated JSON array, newest first, no duplicate dates]
+  [updated JSON array, sorted by date descending, no duplicate dates]
+
+The sort ensures the most recent calendar date is always index 0 regardless of push order.
 
 Each entry format:
   {
