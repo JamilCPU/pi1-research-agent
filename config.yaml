@@ -1,0 +1,25 @@
+# Pi 1 Research Agent Configuration
+
+# Blocked domains API — hosted on the dev machine, reachable over LAN
+# Replace with your machine's LAN IP
+blocklist_api_url: "http://192.0.2.99:8741"
+
+cycle_interval_seconds: 3600  # 1 hour
+
+thresholds:
+  monetizability: 7000
+  feasibility: 5000
+
+# OpenClaw gateway — all AI calls go through here
+openclaw:
+  agent: "main"               # openclaw agent id — from: openclaw agents list
+  skill_timeout_seconds: 600  # max time for a single agent run (10 min)
+
+# File paths (Linux paths on Pi 1)
+paths:
+  research_folder: "/shared/research"   # researcher saves JSON here; sub-dirs: pending/, done/
+  handoff_folder: "/shared/handoff"     # final .md requirements docs for Pis 2 & 3
+  log_file: "/var/log/pi1-research-agent/agent.log"
+
+# Jaccard similarity threshold for deduplication against existing handoff docs
+dedup_similarity_threshold: 0.45

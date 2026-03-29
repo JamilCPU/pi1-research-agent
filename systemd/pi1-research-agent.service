@@ -1,0 +1,28 @@
+[Unit]
+Description=Pi 1 Research Agent — autonomous opportunity scanner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jamil
+Group=jamil
+WorkingDirectory=/opt/pi1-research-agent
+ExecStart=/opt/pi1-research-agent/venv/bin/python main.py
+Restart=on-failure
+RestartSec=30s
+
+EnvironmentFile=-/etc/pi1-research-agent.env
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pi1-research-agent
+
+MemoryMax=200M
+CPUQuota=50%
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
