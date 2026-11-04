@@ -222,7 +222,7 @@ Each entry format:
 
 This triggers an automatic Cloudflare Pages deployment.
 
-  exec: cd /opt/ai-news && git config user.email "pi1@signal.local" && git config user.name "Pi 1 Agent"
+  exec: cd /opt/ai-news && git config user.email "pi1@example.com" && git config user.name "Pi 1 Agent"
   exec: cd /opt/ai-news && git add app/public/digests/<YYYY-MM-DD>.html app/public/digests/index.json
   exec: cd /opt/ai-news && git commit -m "digest: <YYYY-MM-DD> — <title>"
   exec: cd /opt/ai-news && git push origin main
